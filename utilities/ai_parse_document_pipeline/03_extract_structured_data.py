@@ -16,14 +16,14 @@ dbutils.widgets.text(
 )
 dbutils.widgets.text("source_table_name", "parsed_documents_text", "Source table name")
 dbutils.widgets.text("table_name", "parsed_documents_structured", "Output table name")
-dbutils.widgets.text("numFilesPerTrigger", "10", "Number of files per trigger")
+dbutils.widgets.text("maxBytesPerTrigger", "128mb", "Max bytes per trigger")
 
 catalog = dbutils.widgets.get("catalog")
 schema = dbutils.widgets.get("schema")
 checkpoint_location = dbutils.widgets.get("checkpoint_location")
 source_table_name = dbutils.widgets.get("source_table_name")
 table_name = dbutils.widgets.get("table_name")
-num_files_per_trigger = dbutils.widgets.get("numFilesPerTrigger")
+max_bytes_per_trigger = dbutils.widgets.get("maxBytesPerTrigger")
 
 # COMMAND ----------
 
@@ -38,7 +38,7 @@ from pyspark.sql.functions import col, concat, current_timestamp, expr, length, 
 # Read from source table using Structured Streaming
 text_stream = (
     spark.readStream.format("delta")
-    .option("maxFilesPerTrigger", num_files_per_trigger)
+    .option("maxBytesPerTrigger", max_bytes_per_trigger)
     .table(source_table_name)
     .filter(
         (col("text").isNotNull())
